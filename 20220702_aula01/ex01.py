@@ -1,10 +1,14 @@
+# Crie um script que receba 2 números, faça a soma desses 2 números
+# e imprima o valor da soma desses números
+# > Informe o primeiro número: 10
+# > Informe o segundo número: 15
+# > O resultado da soma de 10 e 15 é 25
+
 if __name__ == "__main__":
-    pass
 
-# crie um script que receba 2 numeros.
-# faça a soma destes 2 numeros e imprima o valor da soma.
+    numero1 = int(input("Informe o primeiro número: "))
+    numero2 = int(input("Informe o segundo número: "))
 
-    num1 = int(input("Informe o 1º número: "))
-    num2 = int(input("Informe o 2º número: "))
-    soma = int(num1 + num2)
-    print(f"O resultado da soma entre {num1} e {num2} é {soma}")
+    resultado = numero1 + numero2
+
+    print(f"O resultado da soma de {numero1} e {numero2} é {resultado}")

@@ -6,3 +6,8 @@ Fonte dos dados: https://github.com/adaoduque/Brasileirao_Dataset
    - Se existirem, serão carregados. Se não, serão criados e depois carregados (método get_or_create das models)
 4) Pegar, dentro do dicionário, as informaçoes sobre goals home e away, hour, date e stadium
 5) Salvar uma nova model Match com os dados coletados (obj_round, obj_awayclub, obj_homeclub, goals_away, goals_home, date, hour, stadium)
+
+
+pip install -r requirements.txt
+python .\manage.py runserver
+python .\manage.py make migratations

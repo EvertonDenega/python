@@ -7,7 +7,7 @@ from django.urls import reverse
 class Genero(models.Model):
 
     # help_text é o texto que aparece no admin do django
-    nome = models.CharField(max_length=200, help_text="Informe um gênero literário (Ficção, terror, etc)")
+    nome = models.CharField(max_length=50, help_text="Informe um gênero literário (Ficção, terror, etc)")
 
     def __str__(self):
         return self.nome
@@ -73,8 +73,8 @@ class CopiaLivro(models.Model):
 
 class Autor(models.Model):
 
-    nome = models.CharField(max_length=50)
-    sobrenome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=100)
+    sobrenome = models.CharField(max_length=200)
     data_de_nascimento = models.DateField("Nascimento \u2605", null=True, blank=True)
     data_de_falecimento = models.DateField("Falecimento \u271F", null=True, blank=True)
 

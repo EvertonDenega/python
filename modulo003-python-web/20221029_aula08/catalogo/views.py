@@ -1,12 +1,21 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.shortcuts import render
+from django.contrib.auth.decorators import permission_required, login_required
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from django.views import generic
-from datetime import datetime
+import datetime
 
-from .models import Livro, CopiaLivro, Autor
+from .forms import RenovarDevolucaoLivro
+from .models import Livro, CopiaLivro, Autor, OpiniaoUsuarioLivro
 
 
 # function-based view
+# Caso queiramos usar permissões em function-based views, importamos o decorator permission_required
+# e aplicamos na function based view
+# O decorator login_required serve pra limitar o acesso à view apenas aos usuários logados
+# @login_required()
+# @permission_required("catalogo.pode_marcar_copia_como_devolvida")
 def index(request):
 
     qtd_livros = Livro.objects.count()
@@ -21,7 +30,7 @@ def index(request):
     qtd_visitas = request.session.get("qtd_visitas", 0)
 
     request.session['qtd_visitas'] = qtd_visitas + 1
-    request.session['ultimo_acesso'] = datetime.now().strftime(
+    request.session['ultimo_acesso'] = datetime.datetime.now().strftime(
         "%d/%m/%Y %H:%M:%S"
     )
 
@@ -36,6 +45,56 @@ def index(request):
 
     return render(request, 'catalogo/index.html', context=context)
 
+
+@login_required
+@permission_required("catalogo.pode_marcar_copia_como_devolvida", raise_exception=True)
+def renovar_data_devolucao_livro(request, pk):
+
+    copia = get_object_or_404(CopiaLivro, pk=pk)
+
+    if request.method == "POST":
+        form = RenovarDevolucaoLivro(request.POST)
+
+        # o método is_valid() chama os validadores do form, tanto os padrões quanto os definidos pelo programador.
+        # Se nenhuma exceção for gerada, esse método retorna True
+        if form.is_valid():
+            copia.devolucao = form.cleaned_data["nova_data_de_devolucao"]
+            copia.save()
+
+            return HttpResponseRedirect(reverse("catalogo:todas-as-copias-emprestadas"))
+
+    else:
+        nova_data_proposta = datetime.date.today() + datetime.timedelta(weeks=3)
+        form = RenovarDevolucaoLivro(initial={"nova_data_de_devolucao": nova_data_proposta})
+
+    context = {
+        "form": form,
+        "copia": copia
+    }
+
+    return render(request, "catalogo/renovar_data_devolucao_livro.html", context)
+
+@login_required
+def comentar_livro(request, pk):
+
+    livro = get_object_or_404(Livro, pk=pk)
+
+    if request.method == "POST":
+        data = request.POST
+        OpiniaoUsuarioLivro(
+            usuario=request.user,
+            livro=livro,
+            comentario=data.get("comentario"),
+            nota=data.get("nota")
+        ).save()
+
+        return HttpResponseRedirect(reverse("catalogo:detalhe-livro", args=(pk,)))
+
+    else:
+        context = {
+            "livro": livro
+        }
+        return render(request, "catalogo/comentar_livro.html", context)
 
 # class-based view
 class LivroListView(generic.ListView):

@@ -7,7 +7,6 @@ from django.urls import reverse
 
 
 class Genero(models.Model):
-
     # help_text é o texto que aparecerá no admin do Django
     nome = models.CharField(max_length=200, help_text="Informe um gênero literário (Ficção Científica, Terror, etc)")
 
@@ -19,7 +18,6 @@ class Genero(models.Model):
 
 
 class Livro(models.Model):
-
     titulo = models.CharField(max_length=200)
     autor = models.ForeignKey('Autor', on_delete=models.SET_NULL, null=True)
     sumario = models.TextField(max_length=100, help_text="Informe uma breve descrição do livro")
@@ -45,7 +43,6 @@ class Livro(models.Model):
 
 
 class CopiaLivro(models.Model):
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text="ID da cópia")
     livro = models.ForeignKey(Livro, on_delete=models.RESTRICT, null=True)
     impressao = models.CharField(max_length=200)
@@ -86,7 +83,6 @@ class CopiaLivro(models.Model):
 
 
 class Autor(models.Model):
-
     nome = models.CharField(max_length=50)
     sobrenome = models.CharField(max_length=100)
     data_de_nascimento = models.DateField("Nascimento (\u2605)", null=True, blank=True)
@@ -100,3 +96,31 @@ class Autor(models.Model):
 
     class Meta:
         ordering = ['sobrenome', 'nome']
+
+
+class OpiniaoUsuarioLivro(models.Model):
+    livro = models.ForeignKey(Livro, on_delete=models.SET_NULL, null=True, blank=True)
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    comentario = models.TextField()
+
+    NOTA_LIVRO = (
+        ("1", "Odiei"),
+        ("2", "Não gostei"),
+        ("3", "Neutro"),
+        ("4", "Gostei"),
+        ("5", "Amei"),
+    )
+
+    nota = models.CharField(
+        max_length=1,
+        choices=NOTA_LIVRO,
+        blank=True,
+        default="3",
+        help_text="Nota do livro segundo o usuário"
+    )
+
+    def __str__(self):
+        return self.comentario
+
+    class Meta:
+        db_table = "opinioes_usuarios_livros"
